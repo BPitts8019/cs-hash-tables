@@ -70,9 +70,10 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         encoded_key = key.encode()
-        index = 0
+        index = 5381
         for val in encoded_key:
-            index += val
+            index = ((index << 5) + index) + val
+            # index * 33 + val #
 
         return index
 
@@ -102,8 +103,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        self.storage[self.hash_index(key)] = None
 
     def get(self, key):
         """
@@ -113,8 +113,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        return self.storage[self.hash_index(key)]
 
     def resize(self, new_capacity):
         """
@@ -135,15 +134,16 @@ if __name__ == "__main__":
     ht.put("line_3", "All mimsy were the borogoves,")
     ht.put("line_4", "And the mome raths outgrabe.")
     ht.put("line_5", '"Beware the Jabberwock, my son!')
-    ht.put("line_6", "The jaws that bite, the claws that catch!")
-    ht.put("line_7", "Beware the Jubjub bird, and shun")
-    ht.put("line_8", 'The frumious Bandersnatch!"')
-    ht.put("line_9", "He took his vorpal sword in hand;")
-    ht.put("line_10", "Long time the manxome foe he sought--")
-    ht.put("line_11", "So rested he by the Tumtum tree")
-    ht.put("line_12", "And stood awhile in thought.")
+    # ht.put("line_6", "The jaws that bite, the claws that catch!")
+    # ht.put("line_7", "Beware the Jubjub bird, and shun")
+    # ht.put("line_8", 'The frumious Bandersnatch!"')
+    # ht.put("line_9", "He took his vorpal sword in hand;")
+    # ht.put("line_10", "Long time the manxome foe he sought--")
+    # ht.put("line_11", "So rested he by the Tumtum tree")
+    # ht.put("line_12", "And stood awhile in thought.")
 
-    # print("")
+    print(ht.get("line_2"))
+    print(ht.get("line_10"))
 
     # # Test storing beyond capacity
     # for i in range(1, 13):
