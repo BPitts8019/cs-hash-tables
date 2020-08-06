@@ -62,8 +62,16 @@ class HashTable:
         Implement this, and/or DJB2.
         """
 
-        # Your code here
-        pass
+        FNV_OFFSET = 0xcbf29ce484222325
+        FNV_PRIME = 0x00000100000001B3
+        encoded_key = key.encode()
+
+        index = FNV_OFFSET
+        for val in encoded_key:
+            index = index * FNV_PRIME
+            index = index ^ val
+
+        return index & MAX_64_BITS
 
     def djb2(self, key):
         """
@@ -84,8 +92,8 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        # return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
