@@ -8,6 +8,12 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
+    def __repr__(self):
+        return f"HTEntry: ({self.key}, {self.value}) -> {self.next}"
+
+    def __str__(self):
+        return f"HTEntry: ({self.key}, {self.value}) -> {self.next}"
+
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -25,7 +31,7 @@ class HashTable:
 
     def __init__(self, capacity):
         self.capacity = capacity if capacity >= MIN_CAPACITY else MIN_CAPACITY
-        self.numItems = 0
+        self.size = 0
         self.storage = [None] * self.capacity
 
     def get_num_slots(self):
@@ -46,7 +52,7 @@ class HashTable:
 
         Implement this.
         """
-        return self.numItems / self.capacity
+        return self.size / self.capacity
 
     def fnv1(self, key):
         """
@@ -96,7 +102,27 @@ class HashTable:
 
         Implement this.
         """
-        self.storage[self.hash_index(key)] = value
+        index = self.hash_index(key)
+        cur_node = self.storage[index]
+
+        if cur_node is None:
+            self.storage[index] = HashTableEntry(key, value)
+            self.size += 1
+        else:
+            isKeyNotFound = True
+
+            while isKeyNotFound and cur_node is not None:
+                if cur_node.key == key:
+                    cur_node.value = value
+                    isKeyNotFound = False
+                else:
+                    cur_node = cur_node.next
+
+            if isKeyNotFound:
+                new_node = HashTableEntry(key, value)
+                new_node.next = self.storage[index]
+                self.storage[index] = new_node
+                self.size += 1
 
     def delete(self, key):
         """
