@@ -127,7 +127,30 @@ class HashTable:
 
         Implement this.
         """
-        self.storage[self.hash_index(key)] = None
+        # TODO Check Load Factor and resize if necessary
+
+        index = self.hash_index(key)
+        head_entry = self.storage[index]
+
+        if head_entry is None:
+            print(f"{key} is not in the table")
+        else:
+            head_entry = self._delete(key, head_entry)
+            self.storage[index] = head_entry
+
+    def _delete(self, target, cur_entry):
+        if cur_entry == None:
+            print(f"{target} is not in the table")
+            return None
+
+        if target == cur_entry.key:
+            next_entry = cur_entry.next
+            cur_entry = None
+            self.size -= 1
+            return next_entry
+
+        cur_entry.next = self._delete(target, cur_entry.next)
+        return cur_entry
 
     def get(self, key):
         """
@@ -182,6 +205,10 @@ if __name__ == "__main__":
     print(ht.get("line_2"))
     print(ht.get("line_10"))
     print(ht.get("line_42"))
+
+    ht.delete("line_2")
+    print(ht.get("line_2"))
+    ht.delete("line_2")
 
     # # Test storing beyond capacity
     # for i in range(1, 13):
