@@ -102,26 +102,16 @@ class HashTable:
 
         Implement this.
         """
-        index = self.hash_index(key)
-        cur_entry = self.storage[index]
-
         # TODO Check Load Factor and resize if necessary
 
+        index = self.hash_index(key)
+        cur_entry = self._get_entry(key)
+
         # Insert the new item #
-        if cur_entry is not None:
-            isKeyNotFound = True
-
-            while isKeyNotFound and cur_entry is not None:
-                if cur_entry.key == key:
-                    cur_entry.value = value
-                    isKeyNotFound = False
-                else:
-                    cur_entry = cur_entry.next
-
-            if isKeyNotFound:
-                new_entry = HashTableEntry(key, value)
-                new_entry.next = self.storage[index]
-                self._insert(new_entry, index)
+        if cur_entry is None and self.storage[index] is not None:
+            new_entry = HashTableEntry(key, value)
+            new_entry.next = self.storage[index]
+            self._insert(new_entry, index)
         else:
             self._insert(HashTableEntry(key, value), index)
 
@@ -154,8 +144,7 @@ class HashTable:
         index = self.hash_index(key)
         cur_entry = self.storage[index]
 
-        isKeyNotFound = True
-        while isKeyNotFound and cur_entry is not None:
+        while cur_entry is not None:
             if cur_entry.key == key:
                 return cur_entry
             else:
