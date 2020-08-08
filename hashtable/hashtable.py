@@ -103,26 +103,31 @@ class HashTable:
         Implement this.
         """
         index = self.hash_index(key)
-        cur_node = self.storage[index]
+        cur_entry = self.storage[index]
 
-        if cur_node is None:
-            self.storage[index] = HashTableEntry(key, value)
-            self.size += 1
-        else:
+        # TODO Check Load Factor and resize if necessary
+
+        # Insert the new item #
+        if cur_entry is not None:
             isKeyNotFound = True
 
-            while isKeyNotFound and cur_node is not None:
-                if cur_node.key == key:
-                    cur_node.value = value
+            while isKeyNotFound and cur_entry is not None:
+                if cur_entry.key == key:
+                    cur_entry.value = value
                     isKeyNotFound = False
                 else:
-                    cur_node = cur_node.next
+                    cur_entry = cur_entry.next
 
             if isKeyNotFound:
-                new_node = HashTableEntry(key, value)
-                new_node.next = self.storage[index]
-                self.storage[index] = new_node
-                self.size += 1
+                new_entry = HashTableEntry(key, value)
+                new_entry.next = self.storage[index]
+                self._insert(new_entry, index)
+        else:
+            self._insert(HashTableEntry(key, value), index)
+
+    def _insert(self, entry, index):
+        self.storage[index] = entry
+        self.size += 1
 
     def delete(self, key):
         """
@@ -142,7 +147,21 @@ class HashTable:
 
         Implement this.
         """
-        return self.storage[self.hash_index(key)]
+        entry = self._get_entry(key)
+        return entry.value if entry is not None else None
+
+    def _get_entry(self, key):
+        index = self.hash_index(key)
+        cur_entry = self.storage[index]
+
+        isKeyNotFound = True
+        while isKeyNotFound and cur_entry is not None:
+            if cur_entry.key == key:
+                return cur_entry
+            else:
+                cur_entry = cur_entry.next
+
+        return cur_entry
 
     def resize(self, new_capacity):
         """
@@ -156,7 +175,7 @@ class HashTable:
 
 
 if __name__ == "__main__":
-    ht = HashTable(16)
+    ht = HashTable(8)
 
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
@@ -173,6 +192,7 @@ if __name__ == "__main__":
 
     print(ht.get("line_2"))
     print(ht.get("line_10"))
+    print(ht.get("line_42"))
 
     # # Test storing beyond capacity
     # for i in range(1, 13):
