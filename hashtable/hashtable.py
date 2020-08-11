@@ -102,7 +102,8 @@ class HashTable:
 
         Implement this.
         """
-        # TODO Check Load Factor and resize if necessary
+        if self.get_load_factor() >= 0.7:
+            self.resize(self.capacity * 2)
 
         index = self.hash_index(key)
         cur_entry = self._get_entry(key)
@@ -182,8 +183,14 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        old_storage = self.storage
+        self.__init__(new_capacity)
+
+        for entry in old_storage:
+            cur_entry = entry
+            while cur_entry is not None:
+                self.put(entry.key, entry.value)
+                cur_entry = cur_entry.next
 
 
 if __name__ == "__main__":
@@ -202,27 +209,23 @@ if __name__ == "__main__":
     ht.put("line_11", "So rested he by the Tumtum tree")
     ht.put("line_12", "And stood awhile in thought.")
 
-    print(ht.get("line_2"))
-    print(ht.get("line_10"))
-    print(ht.get("line_42"))
-
     ht.delete("line_2")
     print(ht.get("line_2"))
     ht.delete("line_2")
 
-    # # Test storing beyond capacity
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    # Test storing beyond capacity
+    for i in range(1, 13):
+        print(ht.get(f"line_{i}"))
 
-    # # Test resizing
-    # old_capacity = ht.get_num_slots()
-    # ht.resize(ht.capacity * 2)
-    # new_capacity = ht.get_num_slots()
+    # Test resizing
+    old_capacity = ht.get_num_slots()
+    ht.resize(ht.capacity * 2)
+    new_capacity = ht.get_num_slots()
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # # Test if data intact after resizing
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    # Test if data intact after resizing
+    for i in range(1, 13):
+        print(ht.get(f"line_{i}"))
 
-    # print("")
+    print("")
