@@ -8,6 +8,12 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
+    def __repr__(self):
+        return f"HTEntry: ({self.key}, {self.value}) -> {self.next}"
+
+    def __str__(self):
+        return f"HTEntry: ({self.key}, {self.value}) -> {self.next}"
+
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -25,13 +31,8 @@ class HashTable:
 
     def __init__(self, capacity):
         self.capacity = capacity if capacity >= MIN_CAPACITY else MIN_CAPACITY
+        self.size = 0
         self.storage = [None] * self.capacity
-
-    def __repr__(self):
-        return f"HashTable: {self.storage}"
-
-    def __str__(self):
-        return f"HashTable: {self.storage}"
 
     def get_num_slots(self):
         """
@@ -43,8 +44,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -52,8 +52,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        return self.size / self.capacity
 
     def fnv1(self, key):
         """
@@ -103,7 +102,23 @@ class HashTable:
 
         Implement this.
         """
-        self.storage[self.hash_index(key)] = value
+        if self.get_load_factor() >= 0.7:
+            self.resize(self.capacity * 2)
+
+        index = self.hash_index(key)
+        cur_entry = self._get_entry(key)
+
+        # Insert the new item #
+        if cur_entry is None and self.storage[index] is not None:
+            new_entry = HashTableEntry(key, value)
+            new_entry.next = self.storage[index]
+            self._insert(new_entry, index)
+        else:
+            self._insert(HashTableEntry(key, value), index)
+
+    def _insert(self, entry, index):
+        self.storage[index] = entry
+        self.size += 1
 
     def delete(self, key):
         """
@@ -113,7 +128,30 @@ class HashTable:
 
         Implement this.
         """
-        self.storage[self.hash_index(key)] = None
+        # TODO Check Load Factor and resize if necessary
+
+        index = self.hash_index(key)
+        head_entry = self.storage[index]
+
+        if head_entry is None:
+            print(f"{key} is not in the table")
+        else:
+            head_entry = self._delete(key, head_entry)
+            self.storage[index] = head_entry
+
+    def _delete(self, target, cur_entry):
+        if cur_entry == None:
+            print(f"{target} is not in the table")
+            return None
+
+        if target == cur_entry.key:
+            next_entry = cur_entry.next
+            cur_entry = None
+            self.size -= 1
+            return next_entry
+
+        cur_entry.next = self._delete(target, cur_entry.next)
+        return cur_entry
 
     def get(self, key):
         """
@@ -123,7 +161,20 @@ class HashTable:
 
         Implement this.
         """
-        return self.storage[self.hash_index(key)]
+        entry = self._get_entry(key)
+        return entry.value if entry is not None else None
+
+    def _get_entry(self, key):
+        index = self.hash_index(key)
+        cur_entry = self.storage[index]
+
+        while cur_entry is not None:
+            if cur_entry.key == key:
+                return cur_entry
+            else:
+                cur_entry = cur_entry.next
+
+        return cur_entry
 
     def resize(self, new_capacity):
         """
@@ -132,12 +183,18 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        old_storage = self.storage
+        self.__init__(new_capacity)
+
+        for entry in old_storage:
+            cur_entry = entry
+            while cur_entry is not None:
+                self.put(entry.key, entry.value)
+                cur_entry = cur_entry.next
 
 
 if __name__ == "__main__":
-    ht = HashTable(16)
+    ht = HashTable(8)
 
     ht.put("line_1", "'Twas brillig, and the slithy toves")
     ht.put("line_2", "Did gyre and gimble in the wabe:")
@@ -152,22 +209,23 @@ if __name__ == "__main__":
     ht.put("line_11", "So rested he by the Tumtum tree")
     ht.put("line_12", "And stood awhile in thought.")
 
+    ht.delete("line_2")
     print(ht.get("line_2"))
-    print(ht.get("line_10"))
+    ht.delete("line_2")
 
-    # # Test storing beyond capacity
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    # Test storing beyond capacity
+    for i in range(1, 13):
+        print(ht.get(f"line_{i}"))
 
-    # # Test resizing
-    # old_capacity = ht.get_num_slots()
-    # ht.resize(ht.capacity * 2)
-    # new_capacity = ht.get_num_slots()
+    # Test resizing
+    old_capacity = ht.get_num_slots()
+    ht.resize(ht.capacity * 2)
+    new_capacity = ht.get_num_slots()
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # # Test if data intact after resizing
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    # Test if data intact after resizing
+    for i in range(1, 13):
+        print(ht.get(f"line_{i}"))
 
-    # print("")
+    print("")
