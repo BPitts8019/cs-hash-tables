@@ -27,9 +27,6 @@ with open("cs-hash-tables/applications/markov/input.txt") as f:
         else:
             store_into(word_store, cur_word, next_word)
 
-        if index > 250:
-            break
-
     # TODO: construct 5 random sentences
     print(start_words)
     print(word_store)
