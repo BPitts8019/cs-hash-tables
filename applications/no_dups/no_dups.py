@@ -1,11 +1,12 @@
 def no_dups(s):
-    word_set = set()
+    word_set = {}
 
     words = s.split()
     for word in words:
-        word_set.add(word)
+        if word not in word_set:
+            word_set[word] = None
 
-    return " ".join(word_set)
+    return " ".join(word_set.keys())
 
 
 if __name__ == "__main__":
