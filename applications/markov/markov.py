@@ -1,19 +1,29 @@
 import random
 import re
 
-start_words = {}
+start_words = []
 word_store = {}
 
 
-def store_into(cache, word, next_word):
-    if word not in cache:
-        cache[word] = [next_word]
-    else:
-        cache[word].append(next_word)
+def buildCache(words_list):
+    for (index, cur_word) in enumerate(words_list):
+        # get next word
+        next_word = words_list[index+1] if index < len(words_list)-1 else ""
+
+        # check for start word
+        if cur_word[0].isupper() or (cur_word[0] == "\"" and cur_word[1].isupper()):
+            start_words.append(cur_word)
+
+        # store the word
+        if cur_word not in word_store:
+            word_store[cur_word] = [next_word]
+        else:
+            word_store[cur_word].append(next_word)
 
 
-def getWord(cache) -> str:
-    return random.choice(list(cache.keys()))
+def getWord(words_list=start_words) -> tuple:
+    key = random.choice(words_list)
+    return (key, word_store[key])
 
 
 def isEndWord(word) -> bool:
@@ -23,35 +33,21 @@ def isEndWord(word) -> bool:
 
 def getSentence():
     output = ""
-    next_word = getWord(start_words)
-    while not isEndWord(next_word):
-        output += next_word + " "
-        next_word = getWord(word_store)
+    cur_word, other_words = getWord()
+    while not isEndWord(cur_word):
+        output += cur_word + " "
+        cur_word, other_words = getWord(other_words)
 
     # concatinate the last word to output and return
-    return output + next_word
+    print(f"({cur_word}, {other_words})")
+    return output + cur_word
 
 
 # Read in all the words in one go
 # with open("applications/markov/input.txt") as f:
 with open("cs-hash-tables/applications/markov/input.txt") as f:
     words = f.read()
-
-    words_list = words.split()
-    for (index, cur_word) in enumerate(words_list):
-        # get next word
-        next_word = words_list[index+1] if index < len(words_list)-1 else ""
-
-        # check for start word
-        if cur_word[0].isupper() or (cur_word[0] == "\"" and cur_word[1].isupper()):
-            store_into(start_words, cur_word, next_word)
-        else:
-            store_into(word_store, cur_word, next_word)
+    buildCache(words.split())
 
     # TODO: construct 5 random sentences
     print(getSentence())
-
-if __name__ == "__main__":
-    pass
-    # print(start_words)
-    # print(word_store)
