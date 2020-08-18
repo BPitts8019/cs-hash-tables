@@ -27,19 +27,18 @@ def getWord(words_list=start_words) -> tuple:
 
 
 def isEndWord(word) -> bool:
-    end_words = re.compile(r".*[.?!\"]$")
+    end_words = re.compile(r".*[.?!]\"*$")
     return end_words.match(word)
 
 
 def getSentence():
     output = ""
-    cur_word, other_words = getWord()
+    cur_word, followed_words = getWord()
     while not isEndWord(cur_word):
         output += cur_word + " "
-        cur_word, other_words = getWord(other_words)
+        cur_word, followed_words = getWord(followed_words)
 
     # concatinate the last word to output and return
-    print(f"({cur_word}, {other_words})")
     return output + cur_word
 
 
@@ -50,4 +49,5 @@ with open("cs-hash-tables/applications/markov/input.txt") as f:
     buildCache(words.split())
 
     # TODO: construct 5 random sentences
-    print(getSentence())
+    for i in range(1, 6):
+        print(f"{i}. {getSentence()}")
